@@ -13,7 +13,7 @@
 - It needs to be representable/encoded as a valid json file.
     - without lost of information.
 
-## LiteBlobsRunTime (?)
+## LiteBlobs
 
 - **LiteBlobs.jl** is a **Tier 0** implementation
 - It defines interfaces to be use by Julia applications/packages.
