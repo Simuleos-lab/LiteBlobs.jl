@@ -1,4 +1,5 @@
 # Core types
+# TODO: Add type parameters
 abstract type AbstractLiteBlob end
 
 struct LiteBlob <: AbstractLiteBlob
