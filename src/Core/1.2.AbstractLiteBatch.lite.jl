@@ -1,0 +1,177 @@
+############################
+# MARK: Array interface
+############################
+
+# --- Required Array interface methods ---
+
+function lite_size(A::AbstractLiteBatch)
+    # Forward to the wrapped array's size.
+    return size(__depot__(A))
+end
+
+
+function lite_getindex(A::AbstractLiteBatch, I...)
+    # Read element(s) from the wrapped array.
+    return getindex(__depot__(A), I...)
+end
+
+function lite_setindex!(A::AbstractLiteBatch, v, I...)
+    # Write element(s) into the wrapped array.
+    setindex!(__depot__(A), v, I...)
+    return A
+end
+
+# It's good practice to declare index style for performance on some code paths.
+function lite_IndexStyle(::Type{<:AbstractLiteBatch})
+    # Match standard arrays: linear indexing is supported.
+    return IndexLinear()
+end
+
+# Axes helps generic array code (works with arbitrary dimensions).
+function lite_axes(A::AbstractLiteBatch)
+    # Forward axes of the wrapped array.
+    return axes(__depot__(A))
+end
+
+# Optional but handy
+function lite_length(A::AbstractLiteBatch)
+    # Total number of elements (product of dimensions).
+    return length(__depot__(A))
+end
+
+# Create a similar container for generic array-creating code.
+function lite_similar(A::AbstractLiteBatch,
+    ::Type{S}, dims::Dims
+) where {S}
+    # Make a wrapper around a new Array of the requested element type/shape.
+    return AbstractLiteBatch{S,length(dims)}(similar(__depot__(A), S, dims))
+end
+
+# Iteration over arrays defaults to eachindex + getindex, but we can forward.
+function lite_iterate(A::AbstractLiteBatch, state=1)
+    # Simple linear iteration over elements.
+    state > length(A) && return nothing
+    return (A[state], state + 1)
+end
+
+# A couple of convenience utilities
+function lite_copy(A::AbstractLiteBatch)
+    # Deep copy the underlying array into a fresh wrapper.
+    return AbstractLiteBatch(copy(__depot__(A)))
+end
+
+function Base.show(io::IO, A::AbstractLiteBatch)
+    # Pretty-ish display that shows it's a wrapper and prints data.
+    print(io, "AbstractLiteBatch(", repr(__depot__(A)), ")")
+end
+
+
+############################
+# MARK: Dict interface
+############################
+
+
+# Recommended helpers to feel like a normal Dict
+
+function lite_haskey(D::AbstractLiteBatch, k)
+    # True if key exists.
+    return haskey(__depot__(D), k)
+end
+
+function lite_keys(D::AbstractLiteBatch)
+    # Iterator over keys.
+    return keys(__depot__(D))
+end
+
+function lite_values(D::AbstractLiteBatch)
+    # Iterator over values.
+    return values(__depot__(D))
+end
+
+function lite_pairs(D::AbstractLiteBatch)
+    # Iterator over Pair(k,v).
+    return pairs(__depot__(D))
+end
+
+function lite_delete!(D::AbstractLiteBatch, k)
+    # Remove a key if present.
+    delete!(__depot__(D), k)
+    return D
+end
+
+function lite_empty!(D::AbstractLiteBatch)
+    # Remove all entries.
+    empty!(__depot__(D))
+    return D
+end
+
+function lite_get(D::AbstractLiteBatch, k, default)
+    # Return value if present, otherwise `default`.
+    return get(__depot__(D), k, default)
+end
+
+function lite_get!(D::AbstractLiteBatch, k, default)
+    # Return existing value or insert default and return it.
+    return get!(__depot__(D), k, default)
+end
+
+
+############################
+# MARK: Utils
+############################
+
+function Base.eltype(::Type{AbstractLiteBatch})
+    return AbstractLiteBlob
+end
+
+# --- Simple mutating utilities ---
+
+function lite_push!(B::AbstractLiteBatch, x)
+    # Add an element to the bag.
+    push!(__depot__(B), x)
+    return B
+end
+
+function lite_pop!(B::AbstractLiteBatch)
+    # Remove and return the last element.
+    return pop!(__depot__(B))
+end
+
+
+# --- rand interface (Random stdlib) ---
+
+# Return a random element from the bag (throws if empty, like rand on an empty collection).
+function lite_rand(rng::AbstractRNG, B::AbstractLiteBatch)
+    # Pick a uniformly random element by random index.
+    @assert !isempty(__depot__(B)) "rand(::AbstractLiteBatch): cannot sample from an empty AbstractLiteBatch"
+    return __depot__(B)[rand(rng, eachindex(__depot__(B)))]
+end
+
+function lite_rand(B::AbstractLiteBatch)
+    # RNG-default convenience method.
+    return rand(Random.default_rng(), B)
+end
+
+# Also useful: sample multiple elements
+function lite_rand(rng::AbstractRNG, B::AbstractLiteBatch, n::Integer)
+    # Return a Vector{T} of n samples with replacement.
+    @assert !isempty(__depot__(B)) "rand(::AbstractLiteBatch, n): cannot sample from an empty AbstractLiteBatch"
+    idxs = rand(rng, eachindex(__depot__(B)), n)  # random indices with replacement
+    return __depot__(B)[idxs]
+end
+
+function lite_rand(B::AbstractLiteBatch, n::Integer)
+    # RNG-default convenience method.
+    return rand(Random.default_rng(), B, n)
+end
+
+# If you want sampling *without* replacement, add this:
+function lite_rand(rng::AbstractRNG,
+    T2::Random.SamplerType{AbstractLiteBatch}, 
+    B::AbstractLiteBatch,
+    T3::Random.SamplerTrivial,
+    n::Random.SamplerTrivial
+)
+    # (Kept intentionally simple—prefer `sample` from StatsBase for serious work.)
+    error("Sampling without replacement not implemented for AbstractLiteBatch; use StatsBase.sample if needed.")
+end

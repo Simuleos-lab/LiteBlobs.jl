@@ -2,7 +2,7 @@
 
 julia_version = "1.11.6"
 manifest_format = "2.0"
-project_hash = "e5c6d0c74f25deb5381366901cfa17d9f1612f68"
+project_hash = "34b897b16a16ec7feb478ff47c6cef370c4e5acc"
 
 [[deps.Dates]]
 deps = ["Printf"]

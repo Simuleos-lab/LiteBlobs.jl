@@ -11,6 +11,7 @@ import MassExport
 
 using OrderedCollections
 using JSON3
+using Random
 
 # using Distributions
 # using LRUCache
@@ -24,7 +25,10 @@ include("Core/0.types.jl")
 include("Core/1.0.base.jl")
 include("Core/1.1.AbstractLiteBlob.base.jl")
 include("Core/1.1.AbstractLiteBlob.lite.jl")
-include("Core/1.2.LiteBlob.base.jl")
+include("Core/1.2.AbstractLiteBatch.base.jl")
+include("Core/1.2.AbstractLiteBatch.lite.jl")
+include("Core/1.3.LiteBlob.base.jl")
+include("Core/1.4.LiteBatch.base.jl")
 
 
 MassExport.@exportall_words
