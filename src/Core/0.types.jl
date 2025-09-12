@@ -12,3 +12,4 @@ struct LiteBlob <: AbstractLiteBlob
     __extras__::Dict{String, Any}  
 end
 
+LiteBlob() = LiteBlob(OrderedDict(), Dict())

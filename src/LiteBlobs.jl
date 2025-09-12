@@ -23,6 +23,7 @@ using JSON3
 include("Core/0.types.jl")
 include("Core/1.0.base.jl")
 include("Core/1.1.AbstractLiteBlob.base.jl")
+include("Core/1.1.AbstractLiteBlob.lite.jl")
 include("Core/1.2.LiteBlob.base.jl")
 
 
