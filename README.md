@@ -91,20 +91,20 @@ ps = pairs(b)
 Optional positional access helpers:
 
 ```julia
-nth = nthkey(b, 1)     # get the first key
-nthp = nthpair(b, 1)   # get the first key=>value pair
+nth = lite_nthkey(b, 1)     # get the first key
+nthp = lite_nthpair(b, 1)   # get the first key=>value pair
 ```
 
 ### Extending for Custom Blobs
 
-To define a custom subtype with the same dictionary-like behavior, just implement `depot(::YourType)`:
+To define a custom subtype with the same dictionary-like behavior, just implement `blob_dict(::YourType)`:
 
 ```julia
 struct MyBlob <: AbstractLiteBlob
     store::Dict{String,Any}
 end
 
-depot(x::MyBlob) = x.store
+blob_dict(x::MyBlob) = x.store
 
 # MyBlob now supports getindex, setindex!, iteration, etc.
 mb = MyBlob(Dict("foo" => 1))

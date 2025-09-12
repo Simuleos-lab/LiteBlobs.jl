@@ -2,8 +2,13 @@
 # TODO: Add type parameters
 abstract type AbstractLiteBlob end
 
+# A dict like struct
 struct LiteBlob <: AbstractLiteBlob
-    depot::OrderedDict{String, Any}   # primary storage (Lite "standard")
-    extras::OrderedDict{String, Any}  # runtime-only extras
+    # primary storage (Lite "standard")
+    __depot__::OrderedDict{String, Any}   
+    
+    # runtime-only extras
+    # Implement dynamic struct
+    __extras__::Dict{String, Any}  
 end
 
