@@ -1,7 +1,10 @@
 # Core types
 # TODO: Add type parameters
 abstract type AbstractLiteBlob end
-abstract type AbstractLiteBatch end
+abstract type AbstractBlobArray end
+
+# TODO/TAI Is this need it?
+abstract type AbstractBlobDict end
 
 # A dict like struct
 struct LiteBlob <: AbstractLiteBlob
@@ -19,10 +22,10 @@ LiteBlob() = LiteBlob(OrderedDict(), Dict())
 # Behave as an OrderedSet object
 # - it is implemented as an OrderedDict to 
 
-struct LiteBatch <: AbstractLiteBatch
+struct BlobArray <: AbstractBlobArray
     __depot__::Vector{LiteBlob}
     __extras__::Dict{String, Any}
 end
 
-LiteBatch() = LiteBatch([], Dict())
+BlobArray() = BlobArray([], Dict())
 
