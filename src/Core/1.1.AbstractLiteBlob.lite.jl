@@ -1,20 +1,24 @@
+############################
+# MARK: Blob interface
+############################
+
 # TODO/TAI
 # Think about a callback system for opening
 # the getindex interface to any (custom) query resolver
 
 # get / set by key
-function lite_getindex_I(x::AbstractLiteBlob,
+function lite_getindex(x::AbstractLiteBlob,
     k::String
 )
     return getindex(__depot__(x), k)
 end
-function lite_getindex_I(x::AbstractLiteBlob,
+function lite_getindex(x::AbstractLiteBlob,
     ::typeof(^), k::String
 )
     return getindex(__extras__(x), k)
 end
 
-function lite_setindex_I!(
+function lite_setindex!(
     x::AbstractLiteBlob, v,
     k::String,
     ks...
@@ -22,7 +26,7 @@ function lite_setindex_I!(
     return Base.setindex!(__depot__(x), v, k, ks...)
 end
 
-function lite_setindex_I!(
+function lite_setindex!(
     x::AbstractLiteBlob, v,
     ::typeof(^),
     k::String
