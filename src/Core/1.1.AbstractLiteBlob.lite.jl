@@ -2,162 +2,112 @@
 # MARK: Blob interface
 ############################
 
-# TODO/TAI
-# Think about a callback system for opening
-# the getindex interface to any (custom) query resolver
+## ---.- .-- - .-. .-. -.- .-. -.-.-
+# MARK: liteobj
+liteobj(args...) = _liteobj(args...)
 
+## ---.- .-- - .-. .-. -.- .-. -.-.-
+# MARK: lite_getindex
 # get / set by key
-function lite_getindex(x::AbstractLiteBlob,
-    k::String
-)
-    return getindex(__depot__(x), k)
-end
-function lite_getindex(x::AbstractLiteBlob,
-    ::typeof(^), k::String
-)
-    return getindex(__extras__(x), k)
-end
+lite_getindex(args...) = _lite_getindex(args...)
 
-function lite_setindex!(
-    x::AbstractLiteBlob, v,
-    k::String,
-    ks...
-)
-    return Base.setindex!(__depot__(x), v, k, ks...)
-end
+## ---.- .-- - .-. .-. -.- .-. -.-.-
+# MARK: lite_setindex!
+# lite_setindex!
+lite_setindex!(args...) =
+    _lite_setindex!(args...)
 
-function lite_setindex!(
-    x::AbstractLiteBlob, v,
-    ::typeof(^),
-    k::String
-)
-    return Base.setindex!(__extras__(x), v, k)
-end
-
+## ---.- .-- - .-. .-. -.- .-. -.-.-
+# MARK: lite_haskey
 # haskey / get with default / delete / empty
-function lite_haskey(x::AbstractLiteBlob, k::String)
-    return haskey(__depot__(x), k)
-end
+lite_haskey(args...) = _lite_haskey(args...)
+    
 
-function lite_get(x::AbstractLiteBlob, k::String, default)
-    return get(__depot__(x), k, default)
-end
-function lite_get(f::Function, x::AbstractLiteBlob, k::String)
-    return get(f, __depot__(x), k)
-end
+## ---.- .-- - .-. .-. -.- .-. -.-.-
+# MARK: lite_get
+lite_get(args...) = _lite_get(args...)
+    
+## ---.- .-- - .-. .-. -.- .-. -.-.-
+# MARK: lite_get!
+lite_get!(args...) = _lite_get!(args...)
 
-function lite_get!(x::AbstractLiteBlob, k::String, default)
-    return get!(__depot__(x), k, default)
-end
-function lite_get!(f::Function, x::AbstractLiteBlob, k::String)
-    return get!(f, __depot__(x), k)
-end
-
-
-function lite_delete!(x::AbstractLiteBlob, k::String)
-    delete!(__depot__(x), k)
-end
-function lite_empty!(x::AbstractLiteBlob)
-    empty!(__depot__(x))
-end
-
-# merge / merge!
+## ---.- .-- - .-. .-. -.- .-. -.-.-
+# MARK: lite_delete!
+lite_delete!(args...) = _lite_delete!(args...)
+    
+## ---.- .-- - .-. .-. -.- .-. -.-.-
+# MARK: lite_empty!
+lite_empty!(args...) = _lite_empty!(args...)
+    
+## ---.- .-- - .-. .-. -.- .-. -.-.-
+# MARK: lite_merge!
 # TODO: Think about merging
-function lite_merge!(x::AbstractLiteBlob, it)
-    merge!(__depot__(x), it)
-    return x
-end
+lite_merge!(args...) = 
+    _lite_merge!(args...)
 
+## ---.- .-- - .-. .-. -.- .-. -.-.-
+# MARK: lite_merge
 # TODO: think more this
-function lite_merge(x::AbstractLiteBlob, it)
-    depot1 = merge(__depot__(x), it)
-    extras1 = copy(__extras__(x))
-    return LiteBlob(depot1, extras1)
-end
+lite_merge(args...) = _lite_merge(args...)
 
-# length / keys / values / pairs
-function lite_length(x::AbstractLiteBlob)
-    return length(__depot__(x))
-end
-function lite_keys(x::AbstractLiteBlob)
-    return keys(__depot__(x))
-end
-function lite_values(x::AbstractLiteBlob)
-    return values(__depot__(x))
-end
-function lite_pairs(x::AbstractLiteBlob)
-    return pairs(__depot__(x))
-end
+## ---.- .-- - .-. .-. -.- .-. -.-.-
+# MARK: lite_length
+lite_length(args...) = 
+    _lite_length(args...)
 
+## ---.- .-- - .-. .-. -.- .-. -.-.-
+# MARK: lite_keys
+lite_keys(args...) = _lite_keys(args...)
+    
+## ---.- .-- - .-. .-. -.- .-. -.-.-
+# MARK: lite_values
+lite_values(args...) = _lite_values(args...)
+    
+## ---.- .-- - .-. .-. -.- .-. -.-.-
+# MARK: lite_pairs
+lite_pairs(args...) = _lite_pairs(args...)
+    
+## ---.- .-- - .-. .-. -.- .-. -.-.-
+# MARK: lite_in
 # membership (e.g., "k in blob" checks keys)
-function lite_in(k::String, x::AbstractLiteBlob)
-    return in(k, keys(x))
-end
+lite_in(args...) = _lite_in(args...)
 
+## ---.- .-- - .-. .-. -.- .-. -.-.-
+# MARK: lite_iterate
 # iteration yields (key => value) pairs
 # Note: iteration protocol is `iterate(obj[, state])`.
-function lite_iterate(x::AbstractLiteBlob)
-    return iterate(pairs(__depot__(x)))
-end
-function lite_iterate(x::AbstractLiteBlob, state)
-    return iterate(pairs(__depot__(x)), state)
-end
+lite_iterate(args...) = _lite_iterate(args...)
 
+## ---.- .-- - .-. .-. -.- .-. -.-.-
+# MARK: lite_eltype
 # eltype for iteration (what does each iteration yield?)
-function lite_eltype(T::Type{<:AbstractLiteBlob})
-    return Pair{string,Any}
-end
-
+lite_eltype(args...) = _lite_eltype(args...)
 
 # --- Optional: a simple "array-like" view -------------------------------------
 # If you want index-by-position access (not typical for dicts, but sometimes handy),
 # provide a *view* that’s explicit, so it’s not surprising.
 # Example: nth key or nth Pair. These are just helpers; they don’t claim an array API.
 
+## ---.- .-- - .-. .-. -.- .-. -.-.-
+# MARK: lite_nthkey
 # nth key (1-based)
-function lite_nthkey(x::AbstractLiteBlob, i0::Integer)
-    i = 1
-    for k in keys(x)
-        i == i0 && return k
-        i += 1
-    end
-    # TODO: make this pro
-    return error("Index out of bound")
-end
+lite_nthkey(args...) = _lite_nthkey(args...)
 
+## ---.- .-- - .-. .-. -.- .-. -.-.-
+# MARK: lite_nthpair
 # nth pair
-function lite_nthpair(x::AbstractLiteBlob, i0::Integer)
-    i = 1
-    for p in x
-        i == i0 && return p
-        i += 1
-    end
-    # TODO: make this pro
-    return error("Index out of bound")
-end
+lite_nthpair(args...) = _lite_nthpair(args...)
 
-# --- json ------------------------------------------------------------------
-# MARK: json
-function lite_json(x::AbstractLiteBlob)
-    js = JSON3.write(__depot__(x))
-    return js
-end
+## ---.- .-- - .-. .-. -.- .-. -.-.-
+# MARK: lite_json
+lite_json(args...) = _lite_json(args...)
 
-function _esc_newline(js::String)
-    js = replace(js, "\n" => "\\n")
-    return js
-end
-
+## ---.- .-- - .-. .-. -.- .-. -.-.-
+# MARK: lite_json
 # Produce a json representation but in a single line
 # Escape new lines if necesary
-function lite_jsonline(x::AbstractLiteBlob; esc_newline=false)
-    js = JSON.json(__depot__(x), 0)
-    if esc_newline
-        js = _esc_newline(js)
-    end
-    return js
-end
-
+lite_jsonline(args...; kwargs...) = 
+    _lite_jsonline(args...; kwargs...)
 
 # --- Example ------------------------------------------------------------------
 # b = LiteBlob()
