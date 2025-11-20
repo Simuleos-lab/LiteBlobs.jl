@@ -23,13 +23,15 @@ using UUIDs
 
 #! include Core
 include("Core/0.types.jl")
-include("Core/1.0.base.jl")
+include("Core/1.0.AbstractLiteObj.base.jl")
+include("Core/1.1.AbstractLiteBlob._lite.jl")
 include("Core/1.1.AbstractLiteBlob.base.jl")
 include("Core/1.1.AbstractLiteBlob.lite.jl")
+include("Core/1.2.AbstractBlobArray._lite.jl")
 include("Core/1.2.AbstractBlobArray.base.jl")
 include("Core/1.2.AbstractBlobArray.lite.jl")
 include("Core/1.3.LiteBlob.base.jl")
-include("Core/1.4.LiteBatch.base.jl")
+include("Core/1.4.BlobArray.base.jl")
 
 
 MassExport.@exportall_words
